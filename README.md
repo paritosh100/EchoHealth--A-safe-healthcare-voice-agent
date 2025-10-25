@@ -1,4 +1,4 @@
-# Health Voice Agent
+# EchoHealth: A Safe Voice Companion for Reliable Medical Information
 
 A voice-first medical information assistant powered by LiveKit and OpenAI Realtime. Provides reliable health information from MEDLINE documents with safety-first design.
 
