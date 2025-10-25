@@ -31,25 +31,53 @@ const LiveKitModal = ({ setShowSupport }) => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
+        <div className="modal-header">
+          <div className="modal-title">
+            <div className="modal-icon">🏥</div>
+            <span>EchoHealth Assistant</span>
+          </div>
+          <button
+            className="modal-close"
+            onClick={() => setShowSupport(false)}
+          >
+            ✕
+          </button>
+        </div>
+        
         <div className="support-room">
           {isSubmittingName ? (
             <form onSubmit={handleNameSubmit} className="name-form">
-              <h2>Enter your name to connect with the Health Information Assistant</h2>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                required
-              />
-              <button type="submit">Connect</button>
-              <button
-                type="button"
-                className="cancel-button"
-                onClick={() => setShowSupport(false)}
-              >
-                Cancel
-              </button>
+              <div className="form-content">
+                <h2>Connect to EchoHealth</h2>
+                <p className="form-description">
+                  Enter your name to start a voice conversation with our medical information assistant
+                </p>
+                <div className="input-group">
+                  <label htmlFor="name">Your Name</label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    required
+                    autoFocus
+                  />
+                </div>
+                <div className="button-group">
+                  <button type="submit" className="connect-button">
+                    <span className="button-icon">🚀</span>
+                    Connect & Start
+                  </button>
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={() => setShowSupport(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </form>
           ) : token ? (
             <LiveKitRoom
