@@ -30,7 +30,7 @@ EchoHealth is a cutting-edge voice-first medical information assistant that prov
 
 Watch EchoHealth in action:
 
-https://github.com/yourusername/livekit_health_agent/blob/master/ECHOHEALTH_DEMO.mp4
+https://github.com/paritosh100/EchoHealth--A-safe-healthcare-voice-agent/blob/master/ECHOHEALTH_DEMO.mp4
 
 *Demonstrates voice-first interaction, RAG-powered responses, and safety features*
 
