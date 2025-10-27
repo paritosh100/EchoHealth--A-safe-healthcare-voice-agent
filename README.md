@@ -112,15 +112,13 @@ Sample interaction showing:
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Frontend │    │  LiveKit Cloud  │    │ Python Backend  │
-│                 │    │                 │    │                 │
-│ • Modern UI     │◄──►│ • WebRTC Audio  │◄──►│ • OpenAI Agent  │
-│ • Voice Controls│    │ • Room Management│    │ • RAG System    │
-│ • Chat Interface│    │ • Token Auth    │    │ • MEDLINE Docs  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
+![Architecture Diagram](architecture_diagram.png)
+
+**Complete system architecture showing:**
+- Frontend (React + LiveKit Components)
+- LiveKit Cloud (WebRTC audio streaming)
+- Backend (LiveKit Agent + OpenAI Realtime)
+- RAG System (FAISS index + MEDLINE documents)
 
 ### Project Structure
 
@@ -156,6 +154,42 @@ EchoHealth is designed with medical safety as the top priority:
 - **👨‍⚕️ Professional Referral** - Always recommends consulting healthcare providers
 - **📖 Source Transparency** - Every response includes citations
 - **⚠️ Safety Disclaimers** - Clear warnings about limitations
+
+![Safety Architecture](safety_architecture.png)
+
+**Multi-layer safety architecture ensuring:**
+- System prompt validation
+- Function call verification
+- Response generation with safety checks
+- Source verification and citation
+
+## 🔍 RAG Workflow
+
+![RAG Workflow](rag_workflow.png)
+
+**Retrieval-Augmented Generation process:**
+1. User query → embedding generation
+2. Vector search in FAISS index
+3. Top-k document retrieval
+4. Context enrichment
+5. LLM generates cited response
+
+**Real-time voice conversation flow:**
+- User speech → WebRTC → LiveKit → Agent
+- RAG retrieval → LLM processing → Voice response
+- End-to-end latency < 3 seconds
+
+## 🆚 How EchoHealth Differs
+
+[Download Comparison PDF](echohealth_comparison.pdf)
+
+**Key advantages over traditional chatbots:**
+- Voice-first interaction instead of text-only
+- Evidence-based RAG system with MEDLINE sources
+- Full transparency with verifiable sources
+- 4-layer safety architecture
+- Real-time WebRTC audio streaming
+- No hallucinations - only verified information
 
 ## 🔧 Usage Guide
 
