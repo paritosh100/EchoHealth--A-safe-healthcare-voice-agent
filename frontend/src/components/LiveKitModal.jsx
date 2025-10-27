@@ -82,7 +82,7 @@ const LiveKitModal = ({ setShowSupport }) => {
           ) : token ? (
             <LiveKitRoom
               serverUrl={import.meta.env.VITE_LIVEKIT_URL}
-              token={token}
+              token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjE1OTU3NDMsImlkZW50aXR5IjoiUGFyaXRvc2giLCJpc3MiOiJBUElFcjJnMzJab1lrOW8iLCJuYmYiOjE3NjE1OTQ4NDMsInN1YiI6IlBhcml0b3NoIiwidmlkZW8iOnsiY2FuUHVibGlzaCI6dHJ1ZSwiY2FuUHVibGlzaERhdGEiOnRydWUsImNhblN1YnNjcmliZSI6dHJ1ZSwicm9vbSI6InJvb20xIiwicm9vbUpvaW4iOnRydWV9fQ.lKkDjcXGMNDvTezCXfu-7UZhojl-XajkU6uPjTIv4m8"
               connect={true}
               video={false}
               audio={true}

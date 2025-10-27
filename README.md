@@ -26,6 +26,14 @@ EchoHealth is a cutting-edge voice-first medical information assistant that prov
 - **📖 Citations** - Inline source references [S1], [S2] for transparency
 - **⚡ Real-Time** - Live voice processing with OpenAI Realtime API
 
+## 🎬 Demo
+
+Watch EchoHealth in action:
+
+https://github.com/yourusername/livekit_health_agent/blob/master/ECHOHEALTH_DEMO.mp4
+
+*Demonstrates voice-first interaction, RAG-powered responses, and safety features*
+
 ## 🚀 Quick Start
 
 ### Prerequisites
