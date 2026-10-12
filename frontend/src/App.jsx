@@ -72,7 +72,7 @@ function App() {
           <div className="hero-visual">
             <div className="floating-card">
               <div className="card-header">
-                <div className="status-indicator"></div>
+                <div className="hero-status-dot"></div>
                 <span>EchoHealth Assistant</span>
               </div>
               <div className="card-content">

@@ -119,13 +119,70 @@ Sample interaction showing:
 
 ## 🏗️ Architecture
 
-![Architecture Diagram](architecture_diagram.png)
+The diagram below reflects the pipeline upgrade documented in [`backend/RAG_UPGRADE_NOTES.md`](backend/RAG_UPGRADE_NOTES.md): the RAG system moved from a single dense-vector FAISS search with a static similarity threshold, to a 5-stage pipeline (query rewriting, hybrid FAISS+BM25 search, cross-encoder reranking, parent-child context resolution, and corrective relevance grading). The agent worker was also migrated from `livekit-agents` 0.12.x (`MultimodalAgent`/`FunctionContext`) to 1.8.6 (`AgentSession`/`Agent`/`function_tool`) after OpenAI retired the Realtime Beta API it depended on.
 
-**Complete system architecture showing:**
-- Frontend (React + LiveKit Components)
-- LiveKit Cloud (WebRTC audio streaming)
-- Backend (LiveKit Agent + OpenAI Realtime)
-- RAG System (FAISS index + MEDLINE documents)
+```mermaid
+flowchart TD
+    classDef user fill:#4A90D9,color:#fff,stroke:#4A90D9
+    classDef comm fill:#E8873C,color:#fff,stroke:#E8873C
+    classDef agentNew fill:#9B6FC9,color:#fff,stroke:#D9534F,stroke-width:3px
+    classDef ragNew fill:#2E9E6B,color:#fff,stroke:#D9534F,stroke-width:3px
+    classDef infra fill:#7A7E73,color:#fff,stroke:#7A7E73
+
+    subgraph User
+        Browser --> React
+        React --> LKModal["LiveKitModal.jsx"]
+        React --> SVA["SimpleVoiceAssistant.jsx"]
+    end
+
+    subgraph S1["Server 1: Flask Token"]
+        Flask["Flask :5001"] --> GetToken["/getToken -> JWT"]
+    end
+
+    subgraph Communication
+        LiveKit --> Room["health-room"]
+        LiveKit --> WebRTC["WebRTC / TURN + Audio"]
+    end
+
+    subgraph S2["Server 2: Agent Worker (agent.py)"]
+        AgentSession --> RealtimeGA["openai.realtime.RealtimeModel (GA)"]
+        AgentSession --> AssistantFnc["AssistantFnc (Agent subclass)"]
+        AssistantFnc --> Prompts["prompts.py + language rule"]
+        SDKNote["SDK upgrade: livekit-agents 0.12.4 -> 1.8.6"]
+    end
+
+    subgraph RAGNew["RAG Pipeline - health_answer() (api.py)"]
+        Rewrite["1. Rewrite (gpt-4o-mini, ASR cleanup)"] --> Hybrid["2. Hybrid Search (FAISS + BM25, RRF)"]
+        Hybrid --> Rerank["3. Rerank (local cross-encoder)"]
+        Rerank --> ParentChild["4. Parent-Child resolve"]
+        ParentChild --> Corrective["5. Corrective Grade (retry, or REFUSE)"]
+    end
+
+    subgraph Ingest["ingest.py"]
+        Docs["docs/*.html"] --> Article["article tag extraction"]
+        Article --> ParentChunks["parent chunks 3600 / 400"]
+        ParentChunks --> ChildChunks["child chunks 1200 / 200"]
+        ChildChunks --> EmbedIdx["embed"]
+        EmbedIdx --> FaissIdx["faiss.index"]
+        EmbedIdx --> Bm25Idx["bm25.pkl"]
+        ParentChunks --> ParentsPkl["parents.pkl"]
+    end
+
+    LKModal -->|GET /getToken| Flask
+    React -->|WebSocket| LiveKit
+    LiveKit -->|WebRTC| AgentSession
+    AssistantFnc -->|function_tool calls| Rewrite
+
+    class Browser,React,LKModal,SVA user
+    class Flask,GetToken infra
+    class LiveKit,Room,WebRTC comm
+    class AgentSession,RealtimeGA,AssistantFnc,Prompts,SDKNote agentNew
+    class Rewrite,Hybrid,Rerank,ParentChild,Corrective ragNew
+    class Docs,ChildChunks,EmbedIdx,FaissIdx infra
+    class Article,ParentChunks,Bm25Idx,ParentsPkl ragNew
+```
+
+*Red-outlined nodes are new or changed in this upgrade; fill color still follows category (purple = agent, green = RAG/data, blue = frontend, orange = communication, gray = plain infrastructure).*
 
 ### Project Structure
 
@@ -162,7 +219,7 @@ EchoHealth is designed with medical safety as the top priority:
 - **📖 Source Transparency** - Every response includes citations
 - **⚠️ Safety Disclaimers** - Clear warnings about limitations
 
-![Safety Architecture](safety_architecture.png)
+*See the [Architecture](#%EF%B8%8F-architecture) diagram above — the Corrective Grade stage (step 5) is this safety layer: it refuses to answer when retrieved context doesn't actually support the question, instead of trusting retrieval alone.*
 
 **Multi-layer safety architecture ensuring:**
 - System prompt validation
@@ -172,13 +229,13 @@ EchoHealth is designed with medical safety as the top priority:
 
 ## 🔍 RAG Workflow
 
-![RAG Workflow](rag_workflow.png)
+*See the [Architecture](#%EF%B8%8F-architecture) diagram above for the full 5-stage pipeline — this section describes the same flow.*
 
 **Retrieval-Augmented Generation process:**
-1. User query → embedding generation
-2. Vector search in FAISS index
-3. Top-k document retrieval
-4. Context enrichment
+1. User query → rewriting (ASR cleanup) → hybrid FAISS + BM25 search
+2. Reciprocal rank fusion, then cross-encoder reranking
+3. Parent-child context resolution
+4. Corrective relevance grading (retry once, or refuse)
 5. LLM generates cited response
 
 **Real-time voice conversation flow:**
@@ -188,7 +245,7 @@ EchoHealth is designed with medical safety as the top priority:
 
 ## 🆚 How EchoHealth Differs
 
-[Download Comparison PDF](echohealth_comparison.pdf)
+[Download Comparison PDF](assets/echohealth_comparison.pdf)
 
 **Key advantages over traditional chatbots:**
 - Voice-first interaction instead of text-only

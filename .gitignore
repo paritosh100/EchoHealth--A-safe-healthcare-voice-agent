@@ -51,3 +51,5 @@ node_modules
 *.bak
 *.old
 *.log
+.claude
+.atl/
